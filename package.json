@@ -1,0 +1,12 @@
+{
+  "name": "spajam-2019-qualification-core",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "setup": "yarn install --ignore-optional"
+  },
+  "author": "Riotz Works (https://riotz.works)",
+  "license": "MIT"
+}
