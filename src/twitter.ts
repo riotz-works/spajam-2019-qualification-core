@@ -2,7 +2,7 @@ import Twitter from 'twitter';
 
 export class TwitterClient {
 
-  public static readonly FILTER = [ 'つらい', 'きつい', '疲れた', 'つかれた', '嫌い', 'キライ' ];
+  public static readonly FILTER = 'つらい';
 
   private readonly client = new Twitter({
     consumer_key       : process.env.TWITTER_API_KEY || '',
@@ -12,6 +12,6 @@ export class TwitterClient {
   });
 
   public async getTimeline(username: string):Promise<Twitter.ResponseData[]> {
-    return this.client.get('statuses/user_timeline', { screen_name: username, count: 40 }) as Promise<Twitter.ResponseData[]>;
+    return this.client.get('statuses/user_timeline', { screen_name: username, count: 5 }) as Promise<Twitter.ResponseData[]>;
   }
 }
