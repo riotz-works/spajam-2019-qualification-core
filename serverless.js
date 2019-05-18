@@ -21,7 +21,13 @@ module.exports = {
       name: '${opt:bucket, "x-sls-artifacts-${self:service}-${self:provider.region}"}',
       serverSideEncryption: 'AES256'
     },
-    iamRoleStatements: []
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: [ 'dynamodb:*' ],
+        Resource: '*'
+      }
+    ]
   },
 
   plugins: [
@@ -33,17 +39,46 @@ module.exports = {
     regions:  { dev: 'ap-northeast-1', prd: '' },
     suffixes: { dev: '',               prd: '' },
     names: {
-      'lambda-systems': '${self:service}-systems${self:custom.suffixes.${self:provider.stage}}'
+      'lambda-system':     '${self:service}-system${self:custom.suffixes.${self:provider.stage}}',
+      'lambda-auth':       '${self:service}-auth${self:custom.suffixes.${self:provider.stage}}',
+      'dynamodb-accounts': '${self:service}-accounts${self:custom.suffixes.${self:provider.stage}}',
     }
   },
 
   functions: {
-    Systems: {
-      name: '${self:custom.names.lambda-systems}',
+    System: {
+      name: '${self:custom.names.lambda-system}',
       handler: 'src/aws-lambda-handler/systems.handle',
       events: [{ http: { path: 'version', method: 'get', cors: true }}]
+    },
+    Auth: {
+      name: '${self:custom.names.lambda-auth}',
+      handler: 'src/aws-lambda-handler/auth.signup',
+      events: [{ http: { path: 'signup', method: 'post', cors: true }}]
     }
   },
 
-  resources: {}
+  resources: {
+    Resources: {
+      AccountsTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: '${self:custom.names.dynamodb-accounts}',
+          SSESpecification: { SSEEnabled: true },
+          AttributeDefinitions: [
+            { AttributeName: 'id',     AttributeType: 'S' },
+            { AttributeName: 'userId', AttributeType: 'S' }
+          ],
+          KeySchema: [
+            { AttributeName: 'id',     KeyType: 'HASH' },
+            { AttributeName: 'userId', KeyType: 'RANGE' }
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits:  1,
+            WriteCapacityUnits: 1
+          }
+        }
+      },
+    }
+  }
 };
