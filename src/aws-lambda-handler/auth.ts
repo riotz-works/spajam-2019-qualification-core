@@ -1,6 +1,7 @@
 import { attribute, hashKey, rangeKey, table } from '@aws/dynamodb-data-mapper-annotations';
 import dayjs from 'dayjs';import { APIGatewayProxyResult as Result, Handler, APIGatewayProxyEvent as Event } from 'aws-lambda';
 import { Dao } from '~/dao.ts';
+import { TwitterClient } from '~/twitter';
 
 
 /**
@@ -10,16 +11,20 @@ import { Dao } from '~/dao.ts';
  * @see http://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html
  */
 export const signup: Handler<Event, Result> = async (event: Event): Promise<Result> => {
-  console.debug('Starting Lambda handler: event=%s', event);
+  console.debug('Starting Lambda handler: event=%s', JSON.stringify(event));
   try {
     const model = Object.assign(new Model(), JSON.parse(event.body || '{}'));
     model.timestamp = dayjs().toISOString();
     console.debug(model);
 
     const ret = await new Dao().create(model);
+
+    const tweet = await new TwitterClient().getTimeline(ret.username);
+    console.log(tweet);
+
     return new Response(ret);
   } catch (err) {
-    console.error(err);
+    console.log(err);
     throw err;
   }
 };
@@ -32,6 +37,9 @@ class Model {
 
   @rangeKey()
   userId!: string;
+
+  @attribute()
+  username!: string;
 
   @attribute()
   token!: {

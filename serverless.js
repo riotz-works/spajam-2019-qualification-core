@@ -27,7 +27,13 @@ module.exports = {
         Action: [ 'dynamodb:*' ],
         Resource: '*'
       }
-    ]
+    ],
+    environment: {
+      TWITTER_API_KEY: process.env.TWITTER_API_KEY,
+      TWITTER_SECRET_KEY: process.env.TWITTER_SECRET_KEY,
+      TWITTER_ACCESS_TOKEN: process.env.TWITTER_ACCESS_TOKEN,
+      TWITTER_ACCESS_TOKEN_SECRET: process.env.TWITTER_ACCESS_TOKEN_SECRET
+    }
   },
 
   plugins: [
