@@ -28,7 +28,7 @@ export const signup: Handler<Event, Result> = async (event: Event): Promise<Resu
 @table('spajam-2019-qualification-core-accounts')
 class Model {
   @hashKey()
-  id!: 'facebook' | 'twitter';
+  id!: 'facebook.com' | 'twitter.com';
 
   @rangeKey()
   userId!: string;
