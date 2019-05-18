@@ -6,10 +6,12 @@
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "dayjs": "^1.8.14",
+    "kuromoji": "^0.1.2",
     "twitter": "^1.7.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.25",
+    "@types/kuromoji": "^0.1.0",
     "@types/node": "^12.0.2",
     "@types/twitter": "^1.7.0",
     "serverless": "^1.42.3",
