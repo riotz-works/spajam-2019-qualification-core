@@ -9,7 +9,7 @@ export class TwitterClient {
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET || ''
   });
 
-  public async getTimeline(username: string):Promise<Twitter.ResponseData> {
-    return this.client.get('statuses/user_timeline', { screen_name: username, count: 40 });
+  public async getTimeline(username: string):Promise<Twitter.ResponseData[]> {
+    return this.client.get('statuses/user_timeline', { screen_name: username, count: 40 }) as Promise<Twitter.ResponseData[]>;
   }
 }
