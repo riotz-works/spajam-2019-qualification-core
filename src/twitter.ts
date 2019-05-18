@@ -10,6 +10,6 @@ export class TwitterClient {
   });
 
   public async getTimeline(username: string):Promise<Twitter.ResponseData> {
-    return this.client.get('statuses/user_timeline', { screen_name: username, count: 20 });
+    return this.client.get('statuses/user_timeline', { screen_name: username, count: 40 });
   }
 }

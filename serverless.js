@@ -48,6 +48,7 @@ module.exports = {
       'lambda-system':     '${self:service}-system${self:custom.suffixes.${self:provider.stage}}',
       'lambda-auth':       '${self:service}-auth${self:custom.suffixes.${self:provider.stage}}',
       'dynamodb-accounts': '${self:service}-accounts${self:custom.suffixes.${self:provider.stage}}',
+      'dynamodb-tweets':   '${self:service}-tweets${self:custom.suffixes.${self:provider.stage}}',
     }
   },
 
@@ -78,6 +79,25 @@ module.exports = {
           KeySchema: [
             { AttributeName: 'id',     KeyType: 'HASH' },
             { AttributeName: 'userId', KeyType: 'RANGE' }
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits:  1,
+            WriteCapacityUnits: 1
+          }
+        }
+      },
+      TweetsTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: '${self:custom.names.dynamodb-tweets}',
+          SSESpecification: { SSEEnabled: true },
+          AttributeDefinitions: [
+            { AttributeName: 'userId',  AttributeType: 'S' },
+            { AttributeName: 'tweetId', AttributeType: 'S' }
+          ],
+          KeySchema: [
+            { AttributeName: 'userId',  KeyType: 'HASH' },
+            { AttributeName: 'tweetId', KeyType: 'RANGE' }
           ],
           ProvisionedThroughput: {
             ReadCapacityUnits:  1,
