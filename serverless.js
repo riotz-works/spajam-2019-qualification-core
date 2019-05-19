@@ -48,6 +48,7 @@ module.exports = {
       'lambda-system':     '${self:service}-system${self:custom.suffixes.${self:provider.stage}}',
       'lambda-auth':       '${self:service}-auth${self:custom.suffixes.${self:provider.stage}}',
       'lambda-tweets':     '${self:service}-tweets${self:custom.suffixes.${self:provider.stage}}',
+      'lambda-tweets-kaiseki': '${self:service}-tweets-kaiseki${self:custom.suffixes.${self:provider.stage}}',
       'dynamodb-accounts': '${self:service}-accounts${self:custom.suffixes.${self:provider.stage}}',
       'dynamodb-tweets':   '${self:service}-tweets${self:custom.suffixes.${self:provider.stage}}',
     }
@@ -68,6 +69,19 @@ module.exports = {
       name: '${self:custom.names.lambda-tweets}',
       handler: 'src/aws-lambda-handler/tweets.handle',
       events: [{ http: { path: 'tweets/{username}', method: 'get', cors: true }}]
+    },
+    Kaiseki: {
+      name: '${self:custom.names.lambda-tweets-kaiseki}',
+      handler: 'src/aws-lambda-handler/tweets.kaiseki',
+      events: [
+        {
+          stream: {
+            type: 'dynamodb',
+            startingPosition: 'TRIM_HORIZON',
+            arn: { 'Fn::GetAtt': [ 'TweetsTable', 'StreamArn' ]}
+          }
+        }
+      ]
     }
   },
 
@@ -108,6 +122,9 @@ module.exports = {
           ProvisionedThroughput: {
             ReadCapacityUnits:  1,
             WriteCapacityUnits: 1
+          },
+          StreamSpecification: {
+            StreamViewType: 'NEW_AND_OLD_IMAGES'
           }
         }
       },
