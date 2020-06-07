@@ -29,6 +29,7 @@ module.exports = {
       }
     ],
     environment: {
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1,
       TWITTER_API_KEY: process.env.TWITTER_API_KEY,
       TWITTER_SECRET_KEY: process.env.TWITTER_SECRET_KEY,
       TWITTER_ACCESS_TOKEN: process.env.TWITTER_ACCESS_TOKEN,
