@@ -2,6 +2,12 @@
   "name": "spajam-2019-qualification-core",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "clean": "rimraf .serverless .webpack",
+    "setup": "yarn install --ignore-optional",
+    "build": "serverless package",
+    "deploy": "serverless deploy"
+  },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
@@ -23,10 +29,16 @@
     "webpack": "^4.31.0",
     "webpack-node-externals": "^1.7.2"
   },
-  "scripts": {
-    "setup": "yarn install --ignore-optional",
-    "build": "serverless package",
-    "deploy": "serverless deploy"
+  "engines": {
+    "node": "12.x"
+  },
+  "homepage": "https://github.com/riotz-works/spajam-2019-qualification-core#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riotz-works/spajam-2019-qualification-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/riotz-works/spajam-2019-qualification-core/issues"
   },
   "author": "Riotz Works (https://riotz.works)",
   "license": "MIT"
