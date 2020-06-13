@@ -38,7 +38,8 @@ module.exports = {
   },
 
   plugins: [
-    'serverless-webpack'
+    'serverless-webpack',
+    'serverless-offline'
   ],
 
   custom: {
