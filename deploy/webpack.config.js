@@ -1,6 +1,5 @@
 const path = require('path');
 const slsw = require('serverless-webpack');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const stage = slsw.lib.options.stage;
 
@@ -25,7 +24,9 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
-    plugins: [ new TsconfigPathsPlugin({ configFile: 'tsconfig.json' })]
+    alias: {
+      '~': path.join(__dirname, '../src')
+    }
   },
   output: {
     libraryTarget: 'commonjs',
