@@ -2,7 +2,7 @@
 // --stage:       Required System Landscape name, default is 'dev' (Choice: [dev | prd], e.g. --stage dev)
 // --region:      Optional, default is determined by the value of `stage` (e.g. --region ap-northeast-1)
 // --bucket:      Optional, default is determined by the value of `stage` (e.g. --bucket x-sls-artifacts)
-// --aws-profile: Optional, when specifying AWS Profile name (If it exists in `~/.aws/credentials`, e.g. --aws-profile dev )
+// --aws-profile: Optional, when specifying AWS Profile name (If `dev` exists in `~/.aws/credentials`, e.g. --aws-profile dev )
 
 const pkg = require('./package.json');
 
@@ -12,22 +12,21 @@ module.exports = {
   provider: {
     name: 'aws',
     stage: '${opt:stage, "dev"}',
-    region: '${opt:region, self:custom.regions.${self:provider.stage}}',
+    region: '${opt:region, self:custom.stages.region.${self:provider.stage}}',
     runtime: `nodejs${pkg.engines.node}`,
     memorySize: 256,
     timeout: 29,
-    logRetentionInDays: 30,
+    logRetentionInDays: 7,
     deploymentBucket: {
       name: '${opt:bucket, "x-sls-artifacts-${self:service}-${self:provider.region}"}',
       serverSideEncryption: 'AES256'
     },
-    iamRoleStatements: [
-      {
-        Effect: 'Allow',
-        Action: [ 'dynamodb:*' ],
-        Resource: '*'
-      }
-    ],
+    apiName: '${self:service}${self:custom.stages.suffix.${self:provider.stage}}',
+    iamRoleStatements: [{
+      Effect: 'Allow',
+      Action: [ 'dynamodb:*' ],
+      Resource: '*'
+    }],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1,
       TWITTER_API_KEY: process.env.TWITTER_API_KEY,
@@ -43,21 +42,23 @@ module.exports = {
   ],
 
   custom: {
-    webpack:  { packager: 'yarn', webpackConfig: './deploy/webpack.config.js', includeModules: { forceExclude: [ 'aws-sdk' ]}},
-    regions:  { dev: 'ap-northeast-1', prd: '' },
-    suffixes: { dev: '',               prd: '' },
+    webpack: { packager: 'yarn', webpackConfig: './deploy/webpack.config.js', includeModules: { forceExclude: [ 'aws-sdk' ]}},
+    stages: {
+      region: { dev: 'ap-northeast-1', prd: '' },
+      suffix: { dev: '-dev',           prd: '' }
+    },
     names: {
-      'lambda-system':     '${self:service}-system${self:custom.suffixes.${self:provider.stage}}',
-      'lambda-auth':       '${self:service}-auth${self:custom.suffixes.${self:provider.stage}}',
-      'lambda-tweets':     '${self:service}-tweets${self:custom.suffixes.${self:provider.stage}}',
-      'lambda-tweets-kaiseki': '${self:service}-tweets-kaiseki${self:custom.suffixes.${self:provider.stage}}',
-      'dynamodb-accounts': '${self:service}-accounts${self:custom.suffixes.${self:provider.stage}}',
-      'dynamodb-tweets':   '${self:service}-tweets${self:custom.suffixes.${self:provider.stage}}',
+      'lambda-system':         '${self:service}-system${self:custom.stages.suffix.${self:provider.stage}}',
+      'lambda-auth':           '${self:service}-auth${self:custom.stages.suffix.${self:provider.stage}}',
+      'lambda-tweets':         '${self:service}-tweets${self:custom.stages.suffix.${self:provider.stage}}',
+      'lambda-tweets-kaiseki': '${self:service}-tweets-kaiseki${self:custom.stages.suffix.${self:provider.stage}}',
+      'dynamodb-accounts':     '${self:service}-accounts${self:custom.stages.suffix.${self:provider.stage}}',
+      'dynamodb-tweets':       '${self:service}-tweets${self:custom.stages.suffix.${self:provider.stage}}',
     }
   },
 
   functions: {
-    System: {
+    Systems: {
       name: '${self:custom.names.lambda-system}',
       handler: 'src/aws-lambda-handler/systems.handle',
       events: [{ http: { path: 'version', method: 'get', cors: true }}]
@@ -87,7 +88,7 @@ module.exports = {
     }
   },
 
-  resources: {
+  resources: [{
     Resources: {
       AccountsTable: {
         Type: 'AWS::DynamoDB::Table',
@@ -129,7 +130,7 @@ module.exports = {
             StreamViewType: 'NEW_AND_OLD_IMAGES'
           }
         }
-      },
+      }
     }
-  }
+  }]
 };

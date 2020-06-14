@@ -1,32 +1,47 @@
+/* eslint-disable @typescript-eslint/camelcase */   // 'cuz key name of configuration is specified
+
 const path = require('path');
 const slsw = require('serverless-webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+const externals = require('webpack-node-externals');
 
-const stage = slsw.lib.options.stage;
-
-const entries = {};
-Object.keys(slsw.lib.entries).forEach(
-  key => (entries[key] = [ './deploy/source-map-install.js', slsw.lib.entries[key] ])
-);
+const production = slsw.lib.options.stage === 'prd';
+const entries = production ? slsw.lib.entries : [ ...new Map(Object.entries(slsw.lib.entries)) ].reduce((l, [ k, v ]) => Object.assign(l, { [k]: [ './deploy/source-map-install.js', v ]}), {});
 
 
 module.exports = {
-  mode: stage === 'prd' ? 'production' : 'development',
+  mode: production ? 'production' : 'development',
   target: 'async-node',
   entry: entries,
-  devtool: stage === 'prd' ? '' : 'inline-source-map',
+  devtool: production ? '' : 'inline-source-map',
   externals: [
-    'aws-sdk'
+    externals({
+      modulesFromFile: {
+        include: [ 'dependencies', ...production ? [] : [ 'source-map-support' ] ]
+      }
+    })
   ],
-  module: {
-    rules: [
-      { test: /\.tsx?$/, use: 'ts-loader' }
-    ]
-  },
   resolve: {
     extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
     alias: {
       '~': path.join(__dirname, '../src')
     }
+  },
+  module: {
+    rules: [
+      { test: /\.tsx?$/u, use: 'ts-loader' }
+    ]
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: production
+          }
+        }
+      })
+    ]
   },
   output: {
     libraryTarget: 'commonjs',
