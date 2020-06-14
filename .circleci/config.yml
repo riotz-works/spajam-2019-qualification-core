@@ -4,68 +4,79 @@ executors:
   default:
     working_directory: ~/workspace
     docker:
-      - image: circleci/node
+      - image: circleci/node:12
     environment:
       TZ: /usr/share/zoneinfo/Asia/Tokyo
 
 commands:
-  system_info:
+  attach:
+    steps:
+      - attach_workspace:
+          at: ~/workspace
+  persist:
+    steps:
+      - persist_to_workspace:
+          root: ~/workspace
+          paths:
+            - ./*
+
+jobs:
+  setup:
+    executor: default
     steps:
       - run:
           name: System information
           command: |
             echo "Node $(node -v)"
             echo "Yarn v$(yarn -v)"
-  setup:
-    steps:
+      - checkout
       - restore_cache:
           name: Restore Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Setup
-          command: yarn setup
+          command: |
+            yarn setup
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-
-jobs:
+      - persist
   build:
-    executor:
-      name: default
+    executor: default
     steps:
-      - system_info
-      - checkout
-      - setup
+      - attach
       - run:
           name: Build
-          command: yarn build
-      - persist_to_workspace:
-          root: ~/workspace
-          paths:
-            - ./*
-  deploy:
-    executor:
-      name: default
-    steps:
-      - attach_workspace:
-          at: ~/workspace
-      - run:
-          name: Deploy
           command: |
-            yarn deploy
+            yarn build
+  deploy:
+    executor: default
+    parameters:
+      stage:
+        type: enum
+        enum: [ "dev", "prd" ]
+    steps:
+      - attach
+      - deploy:
+          command: |
+            yarn deploy --stage << parameters.stage >>
+
 
 workflows:
   build-deploy-flow:
     jobs:
+      - setup
       - build:
           context: spajam-2019-qualification
+          requires:
+            - setup
       - deploy:
+          stage: dev
           context: spajam-2019-qualification
           requires:
             - build
           filters:
             branches:
-              only:
-                - master
+              only: master
