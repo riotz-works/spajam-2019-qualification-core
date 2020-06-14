@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "clean": "rimraf .serverless .webpack",
+    "clean": "rimraf .serverless deploy/.webpack",
     "setup": "yarn install --ignore-optional",
     "dev": "serverless offline start",
     "build": "serverless package",
@@ -42,6 +42,6 @@
   "bugs": {
     "url": "https://github.com/riotz-works/spajam-2019-qualification-core/issues"
   },
-  "author": "Riotz Works (https://riotz.works)",
+  "author": "Riotz.works (https://riotz.works)",
   "license": "MIT"
 }
