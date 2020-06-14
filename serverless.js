@@ -27,8 +27,16 @@ module.exports = {
     },
     iamRoleStatements: [{
       Effect: 'Allow',
-      Action: [ 'dynamodb:*' ],
-      Resource: '*'
+      Action: [
+        'dynamodb:GetItem',
+        'dynamodb:Query',
+        'dynamodb:PutItem',
+        'dynamodb:UpdateItem'
+      ],
+      Resource: [
+        { 'Fn::GetAtt': [ 'AccountsTable', 'Arn' ]},
+        { 'Fn::GetAtt': [ 'TweetsTable', 'Arn' ]}
+      ]
     }],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1,
