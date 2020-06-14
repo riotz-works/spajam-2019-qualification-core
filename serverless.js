@@ -18,6 +18,7 @@ module.exports = {
     memorySize: 256,
     timeout: 29,
     logRetentionInDays: 7,
+    versionFunctions: false,
     deploymentBucket: {
       name: '${opt:bucket, "x-sls-artifacts-' + pkg.group + '-${self:provider.region}"}',
       serverSideEncryption: 'AES256'
