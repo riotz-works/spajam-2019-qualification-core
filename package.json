@@ -1,5 +1,6 @@
 {
   "name": "spajam-2019-qualification-core",
+  "group": "riotz",
   "version": "0.0.1",
   "private": true,
   "scripts": {
